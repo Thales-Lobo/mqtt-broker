@@ -20,10 +20,10 @@ void log_message(LogLevel level, const char *fmt, ...) {
     if (level == LOG_DEBUG && !DEBUG_ENABLED) {
         return;
     }
-    
-    FILE *f = fopen(LOG_FILE, "a");
+
+    FILE *f = fopen(LOG_FILE, "a+");
     if (!f) {
-        perror("Erro ao abrir arquivo de log");
+        perror("Error opening log file");
         return;
     }
 
@@ -57,15 +57,20 @@ void log_message(LogLevel level, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
+    va_list args_copy;
+    va_copy(args_copy, args);
+
     fprintf(f, "[%s] [%s] ", timebuf, level_str);
     vfprintf(f, fmt, args);
     fprintf(f, "\n");
 
     printf("%s[%s] [%s] ", color, timebuf, level_str);
-    vprintf(fmt, args);
+    vprintf(fmt, args_copy);
     printf("%s\n", COLOR_RESET);
 
+    va_end(args_copy);
     va_end(args);
+
     fclose(f);
 }
 
