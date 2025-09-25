@@ -1,0 +1,32 @@
+# -------------------------------------------------------------------
+# Dockerfile for MQTT Client Simulation
+# Uses mosquitto clients to simulate multiple publishers and subscribers
+# -------------------------------------------------------------------
+
+FROM ubuntu:22.04
+
+# Avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install necessary tools
+RUN apt-get update && apt-get install -y \
+    mosquitto-clients \
+    bash \
+    curl \
+    jq \
+    iputils-ping \
+    net-tools \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy scripts
+COPY scripts/entrypoint_client.sh ./scripts/entrypoint_client.sh
+
+# Make entrypoint executable
+RUN chmod +x ./scripts/entrypoint_client.sh
+
+# No port exposure needed; container connects to broker externally
+#CMD ["./scripts/entrypoint_client.sh"]

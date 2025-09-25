@@ -1,0 +1,40 @@
+# -------------------------------------------------------------------
+# Dockerfile for Broker
+# Builds and runs the MQTT broker inside a Linux container.
+# -------------------------------------------------------------------
+
+# Base image
+FROM ubuntu:22.04
+
+# Avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install build tools and network utilities
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    net-tools \
+    iproute2 \
+    iputils-ping \
+    procps \
+    uuid-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy source and include files for compilation
+COPY Makefile ./Makefile
+COPY bin ./bin
+COPY build ./build
+COPY include ./include
+COPY src ./src
+COPY state ./state
+
+# Expose broker port
+EXPOSE 8000
+
+# Build the broker executable inside the container
+RUN make
+
+# Default command to run the broker
+CMD ["./bin/broker", "8000"]
